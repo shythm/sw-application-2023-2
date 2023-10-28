@@ -2,3 +2,5 @@ data/
 downloads/
 docs/
 output/
+temp/
+.ipynb_checkpoints/
