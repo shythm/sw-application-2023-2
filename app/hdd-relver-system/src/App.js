@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Image from "react-bootstrap/Image";
 
 import Papa from "papaparse";
 
@@ -127,18 +129,44 @@ export default function App() {
   console.log(data);
 
   return (
-    <Container fluid>
-      <Row>
-        <h1>실사용 데이터 기반 HDD 신뢰도 검증 시스템</h1>
+    <Container fluid="lg" className="p-4">
+      <Row className="mt-4">
+        <Col sm={6} md={3}>
+          <Image
+            className="w-50"
+            src="/hdd-main.png"
+            alt="HDD Main Image"
+            rounded
+          />
+        </Col>
       </Row>
-      <Row>
-        <Col xs={12} md={6} xl={8}>
+      <Row className="mt-2">
+        <Col>
+          <h1 className="display-4 fw-bold">
+            <strong>
+              실사용 데이터 기반
+              <br />
+              HDD 신뢰도 검증 시스템
+            </strong>
+          </h1>
+        </Col>
+      </Row>
+      <Row className="mt-2">
+        <Col sm={12} md={7}>
           <ReliabilityTable
             data={sampleData}
             onRowClick={(e) => console.log(e)}
           />
         </Col>
-        <Col xs={12} md={6} xl={4}>
+        <Col sm={12} md={5}>
+          <FailureRateChart
+            dataX={data?.map((row) => row[0])}
+            dataY={data?.map((row) => row[1] * 100)}
+          />
+          <FailureRateChart
+            dataX={data?.map((row) => row[0])}
+            dataY={data?.map((row) => row[1] * 100)}
+          />
           <FailureRateChart
             dataX={data?.map((row) => row[0])}
             dataY={data?.map((row) => row[1] * 100)}
