@@ -4,3 +4,5 @@ docs/
 output/
 temp/
 .ipynb_checkpoints/
+
+!app/hdd-relver-system/public/data/
