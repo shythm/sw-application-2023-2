@@ -9,8 +9,8 @@ body {
   background: rgb(255, 255, 255);
   background: linear-gradient(
     0deg,
-    rgba(255, 255, 255, 1) 70%,
-    rgba(226, 226, 226, 1) 100%
+    rgba(255, 255, 255, 1) 80%,
+    rgba(236, 236, 236, 1) 100%
   );
 }
 
