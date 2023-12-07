@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 
+import Papa from "papaparse";
+
 import ReliabilityTable from "./components/ReliabilityTable";
+import FailureRateChart from "./components/FailureRateChart";
 
 export default function App() {
   const sampleData = [
@@ -109,18 +112,37 @@ export default function App() {
     },
   ];
 
+  const [data, setData] = useState(null);
+
+  if (!data) {
+    Papa.parse("/data/ST14000NM001G-smart_9_raw.csv", {
+      download: true,
+      header: false,
+      complete: function (results) {
+        setData(results.data.slice(1));
+      },
+    });
+  }
+
+  console.log(data);
+
   return (
-    <Container>
-      <Row>실사용 데이터 기반 HDD 신뢰도 검증 시스템</Row>
+    <Container fluid>
       <Row>
-        <Col xs={12} md={8}>
+        <h1>실사용 데이터 기반 HDD 신뢰도 검증 시스템</h1>
+      </Row>
+      <Row>
+        <Col xs={12} md={6} xl={8}>
           <ReliabilityTable
             data={sampleData}
             onRowClick={(e) => console.log(e)}
           />
         </Col>
-        <Col xs={12} md={4}>
-          this is second column. this section is for failure-rate graph.
+        <Col xs={12} md={6} xl={4}>
+          <FailureRateChart
+            dataX={data?.map((row) => row[0])}
+            dataY={data?.map((row) => row[1] * 100)}
+          />
         </Col>
       </Row>
     </Container>
