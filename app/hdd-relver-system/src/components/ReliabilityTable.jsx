@@ -2,7 +2,7 @@ import React from "react";
 import { Table } from "react-bootstrap";
 
 const ReliabilityTable = (props) => {
-  const { data, onRowClick } = props;
+  const { data, selectedModel, onRowClick } = props;
 
   if (!data) {
     return <div>데이터가 없습니다.</div>;
@@ -28,7 +28,11 @@ const ReliabilityTable = (props) => {
       </thead>
       <tbody>
         {sortedData.map((item, idx) => (
-          <tr key={item.model} onClick={() => onRowClick(item)}>
+          <tr
+            key={item.model}
+            onClick={() => onRowClick(item)}
+            className={item.model === selectedModel ? "table-primary" : ""}
+          >
             <td role="button" className="text-nowrap">
               {idx + 1}
             </td>

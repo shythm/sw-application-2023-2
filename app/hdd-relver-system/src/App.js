@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -27,21 +27,23 @@ function getFailureRate(model, feature, success) {
 
 export default function App() {
   const [hardDiskData, setHardDiskData] = useState(null);
-  const [selectedModel, setSelectedModel] = useState(null);
+  const [selectedHDD, setSelectedHDD] = useState(null);
   const [smart9Raw, setSmart9Raw] = useState(null);
   const [smart241Raw, setSmart241Raw] = useState(null);
   const [smart242Raw, setSmart242Raw] = useState(null);
 
+  const rightSectionRef = useRef(null);
+
   useEffect(() => {
-    if (selectedModel) {
-      getFailureRate(selectedModel.model, "smart_9_raw", (data) =>
+    if (selectedHDD) {
+      getFailureRate(selectedHDD.model, "smart_9_raw", (data) =>
         setSmart9Raw(data)
       );
-      getFailureRate(selectedModel.model, "smart_241_raw", (data) => {
+      getFailureRate(selectedHDD.model, "smart_241_raw", (data) => {
         data.x = data.x.map((x) => Math.floor((x * 512) / 100000000000)); // convert to 100 GB unit
         setSmart241Raw(data);
       });
-      getFailureRate(selectedModel.model, "smart_242_raw", (data) => {
+      getFailureRate(selectedHDD.model, "smart_242_raw", (data) => {
         data.x = data.x.map((x) => Math.floor((x * 512) / 100000000000)); // convert to 100 GB unit
         setSmart242Raw(data);
       });
@@ -52,7 +54,7 @@ export default function App() {
       setSmart241Raw(null);
       setSmart242Raw(null);
     };
-  }, [selectedModel]);
+  }, [selectedHDD]);
 
   if (!hardDiskData) {
     // initialize hard disk data
@@ -96,16 +98,26 @@ export default function App() {
           <Row className="mt-3 overflow-scroll">
             <ReliabilityTable
               data={hardDiskData}
-              onRowClick={(e) => setSelectedModel(e)}
+              selectedModel={selectedHDD?.model}
+              onRowClick={(e) => {
+                setSelectedHDD(e);
+                rightSectionRef.current.scrollIntoView({ behavior: "smooth" });
+              }}
             />
           </Row>
         </Col>
-        <Col sm={12} md={6} lg={5}>
-          <h2 className="fw-bold">S.M.A.R.T.에 따른 실패율</h2>
-          <h3 className="text-secondary">{selectedModel?.model}</h3>
-          <p className="text-secondary">
-            총 {selectedModel?.count.toLocaleString()}개의 데이터
-          </p>
+        <Col ref={rightSectionRef} sm={12} md={6} lg={5}>
+          <h2 className="fw-bold text-center">S.M.A.R.T.에 따른 실패율</h2>
+          <div className="text-secondary text-center">
+            {selectedHDD ? (
+              <>
+                <h3>{selectedHDD.model}</h3>
+                <p>총 {selectedHDD.count.toLocaleString()}개의 데이터</p>
+              </>
+            ) : (
+              <p>왼쪽에서 조회를 원하는 하드디스크를 클릭해주세요.</p>
+            )}
+          </div>
           {smart9Raw && (
             <FailureRateChart
               dataX={smart9Raw.x}
