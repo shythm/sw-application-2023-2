@@ -7,7 +7,6 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
 
@@ -21,7 +20,7 @@ ChartJS.register(
 );
 
 const FailureRateChart = (props) => {
-  const { dataX, dataY } = props;
+  const { dataX, dataY, title, labelX } = props;
 
   const options = {
     responsive: true,
@@ -35,7 +34,7 @@ const FailureRateChart = (props) => {
       },
       title: {
         display: true,
-        text: "Chart.js Line Chart",
+        text: title,
       },
       tooltip: {
         callbacks: {
@@ -56,7 +55,7 @@ const FailureRateChart = (props) => {
       x: {
         title: {
           display: true,
-          text: "누적 사용 시간",
+          text: labelX,
           font: {
             size: 16,
           },
