@@ -16,27 +16,41 @@ const ReliabilityTable = (props) => {
     <Table striped hover bordered>
       <thead>
         <tr>
-          <th>번호</th>
-          <th>제조회사</th>
-          <th>모델명</th>
-          <th>용량(TB)</th>
-          <th>RPM</th>
-          <th>가격(₩)</th>
-          <th>에러율</th>
-          <th>구매</th>
+          <th className="text-nowrap">번호</th>
+          <th className="text-nowrap">제조회사</th>
+          <th className="text-nowrap">모델명</th>
+          <th className="text-nowrap">용량(TB)</th>
+          <th className="text-nowrap">RPM</th>
+          <th className="text-nowrap">가격(₩)</th>
+          <th className="text-nowrap">에러율</th>
+          <th className="text-nowrap">구매</th>
         </tr>
       </thead>
       <tbody>
         {sortedData.map((item, idx) => (
-          <tr key={item.id} onClick={() => onRowClick(item)}>
-            <td>{idx + 1}</td>
-            <td>{item.manufacturer}</td>
-            <td>{item.model}</td>
-            <td>{item.capacity}</td>
-            <td>{item.rpm}</td>
-            <td>{item.price?.toLocaleString()}</td>
-            <td>{item.errorRate?.toFixed(8)}</td>
-            <td>
+          <tr key={item.model} onClick={() => onRowClick(item)}>
+            <td role="button" className="text-nowrap">
+              {idx + 1}
+            </td>
+            <td role="button" className="text-nowrap">
+              {item.manufacturer}
+            </td>
+            <td role="button" className="text-nowrap">
+              {item.model}
+            </td>
+            <td role="button" className="text-nowrap">
+              {item.capacity}
+            </td>
+            <td role="button" className="text-nowrap">
+              {item.rpm}
+            </td>
+            <td role="button" className="text-nowrap">
+              {item.price?.toLocaleString()}
+            </td>
+            <td role="button" className="text-nowrap">
+              {item.errorRate?.toFixed(8)}
+            </td>
+            <td role="button" className="text-nowrap">
               <a href={item.purchaseLink}>구매</a>
             </td>
           </tr>
