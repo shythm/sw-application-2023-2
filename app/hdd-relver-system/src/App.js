@@ -1,3 +1,4 @@
+import "./App.css";
 import React, { useState, useEffect } from "react";
 
 import Container from "react-bootstrap/Container";
@@ -103,6 +104,7 @@ export default function App() {
             <FailureRateChart
               dataX={smart9Raw.x}
               dataY={smart9Raw.y}
+              height="150px"
               title="S.M.A.R.T. 9"
               labelX="누적 사용 시간"
             />
@@ -111,6 +113,7 @@ export default function App() {
             <FailureRateChart
               dataX={smart241Raw.x}
               dataY={smart241Raw.y}
+              height="150px"
               title="S.M.A.R.T. 241"
               labelX="누적 데이터 쓰기 (100 GB unit)"
             />
@@ -119,6 +122,7 @@ export default function App() {
             <FailureRateChart
               dataX={smart242Raw.x}
               dataY={smart242Raw.y}
+              height="150px"
               title="S.M.A.R.T. 242"
               labelX="누적 데이터 읽기 (100 GB unit)"
             />

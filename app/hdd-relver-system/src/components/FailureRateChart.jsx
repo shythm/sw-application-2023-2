@@ -20,7 +20,7 @@ ChartJS.register(
 );
 
 const FailureRateChart = (props) => {
-  const { dataX, dataY, title, labelX } = props;
+  const { dataX, dataY, title, labelX, ...restProps } = props;
 
   const options = {
     responsive: true,
@@ -78,6 +78,7 @@ const FailureRateChart = (props) => {
           },
         ],
       }}
+      {...restProps}
     />
   );
 };
