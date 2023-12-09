@@ -8,10 +8,6 @@ const ReliabilityTable = (props) => {
     return <div>데이터가 없습니다.</div>;
   }
 
-  // sort by errorRate
-  let sortedData = data.slice();
-  sortedData.sort((a, b) => a.errorRate - b.errorRate);
-
   return (
     <Table striped hover bordered>
       <thead>
@@ -27,7 +23,7 @@ const ReliabilityTable = (props) => {
         </tr>
       </thead>
       <tbody>
-        {sortedData.map((item, idx) => (
+        {data.map((item, idx) => (
           <tr
             key={item.model}
             onClick={() => onRowClick(item)}
