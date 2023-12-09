@@ -10,6 +10,7 @@ import Papa from "papaparse";
 
 import ReliabilityTable from "./components/ReliabilityTable";
 import FailureRateChart from "./components/FailureRateChart";
+import SpecInputForm from "./components/SpecInputForm";
 
 function getFailureRate(model, feature, success) {
   Papa.parse(`/data/${model}-${feature}.csv`, {
@@ -65,7 +66,7 @@ export default function App() {
   }
 
   return (
-    <Container fluid className="p-4">
+    <Container fluid="xxl" className="p-4">
       <Row className="mt-4">
         <Col sm={6} md={3}>
           <Image
@@ -88,11 +89,16 @@ export default function App() {
         </Col>
       </Row>
       <Row className="mt-2">
-        <Col sm={12} md={6} lg={7} className="overflow-scroll">
-          <ReliabilityTable
-            data={hardDiskData}
-            onRowClick={(e) => setSelectedModel(e)}
-          />
+        <Col sm={12} md={6} lg={7}>
+          <Row>
+            <SpecInputForm onSubmit={(e) => console.log(e)} />
+          </Row>
+          <Row className="mt-3 overflow-scroll">
+            <ReliabilityTable
+              data={hardDiskData}
+              onRowClick={(e) => setSelectedModel(e)}
+            />
+          </Row>
         </Col>
         <Col sm={12} md={6} lg={5}>
           <h2 className="fw-bold">S.M.A.R.T.에 따른 실패율</h2>
