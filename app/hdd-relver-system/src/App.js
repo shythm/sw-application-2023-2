@@ -5,12 +5,38 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Image from "react-bootstrap/Image";
+import Alert from "react-bootstrap/Alert";
+import Button from "react-bootstrap/Button";
 
 import Papa from "papaparse";
 
 import ReliabilityTable from "./components/ReliabilityTable";
 import FailureRateChart from "./components/FailureRateChart";
 import SpecInputForm from "./components/SpecInputForm";
+
+function useHardDiskData() {
+  const [hardDiskData, setHardDiskData] = useState(null);
+
+  // initialize hard disk data
+  if (hardDiskData) {
+    return hardDiskData;
+  } else {
+    Papa.parse("/data/hdd-list-2022.csv", {
+      download: true,
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+      complete: (res) => {
+        // sort by errorRate
+        const data = res.data.slice();
+        data.sort((a, b) => a.errorRate - b.errorRate);
+        setHardDiskData(data);
+      },
+    });
+
+    return null;
+  }
+}
 
 function getFailureRate(model, feature, success) {
   Papa.parse(`/data/${model}-${feature}.csv`, {
@@ -25,16 +51,74 @@ function getFailureRate(model, feature, success) {
   });
 }
 
+function getRecommendations(arr, price, capacity, rpm) {
+  /**
+   * data: {Array} target
+   * model, count, penalty, errorRate, manufacturer,
+   * price, capacity, rpm
+   */
+  const data = arr.slice();
+
+  const minMax = (arr) =>
+    arr.reduce(
+      ([min, max = min], num) => [Math.min(num, min), Math.max(num, max)],
+      arr
+    );
+  const [priceMin, priceMax] = minMax(data.map((d) => d.price));
+  const [capacityMin, capacityMax] = minMax(data.map((d) => d.capacity));
+  const [rpmMin, rpmMax] = minMax(data.map((d) => d.rpm));
+
+  // 입력 데이터 정규화
+  const userPriceNorm = (price - priceMin) / (priceMax - priceMin);
+  const userCapacityNorm =
+    (capacity - capacityMin) / (capacityMax - capacityMin);
+  const userRpmNorm = (rpm - rpmMin) / (rpmMax - rpmMin);
+
+  const recommendations = data.map((d) => {
+    // 대상 데이터 정규화
+    const priceNorm = (d.price - priceMin) / (priceMax - priceMin);
+    const capacityNorm =
+      (d.capacity - capacityMin) / (capacityMax - capacityMin);
+    const rpmNorm = (d.rpm - rpmMin) / (rpmMax - rpmMin);
+
+    return {
+      ...d,
+      distance:
+        // 유클리디안 거리 계산
+        ((priceNorm - userPriceNorm) ** 2 +
+          (capacityNorm - userCapacityNorm) ** 2 +
+          (rpmNorm - userRpmNorm) ** 2 +
+          (d.errorRate - 0) ** 2) **
+        0.5,
+    };
+  });
+
+  // 거리 오름차순 정렬
+  recommendations.sort((a, b) => a.distance - b.distance);
+  return recommendations;
+}
+
 export default function App() {
-  const [hardDiskData, setHardDiskData] = useState(null);
+  const hardDiskData = useHardDiskData();
+  const [tableData, setTableData] = useState(null);
   const [selectedHDD, setSelectedHDD] = useState(null);
   const [smart9Raw, setSmart9Raw] = useState(null);
   const [smart241Raw, setSmart241Raw] = useState(null);
   const [smart242Raw, setSmart242Raw] = useState(null);
+  const [recommendationMessage, setRecommendationMessage] = useState(null);
 
   const rightSectionRef = useRef(null);
 
   useEffect(() => {
+    // 초기에 하드디스크 원본 데이터 받아오면 테이블 데이터로 초기화
+    if (hardDiskData) {
+      console.log("hardDiskData", hardDiskData);
+      setTableData(hardDiskData.slice());
+    }
+  }, [hardDiskData]);
+
+  useEffect(() => {
+    // 하나의 하드디스크를 선택하면 오른쪽 섹션에 그 하드디스a크의 S.M.A.R.T. 기반 실패율을 가져옴
     if (selectedHDD) {
       getFailureRate(selectedHDD.model, "smart_9_raw", (data) =>
         setSmart9Raw(data)
@@ -55,17 +139,6 @@ export default function App() {
       setSmart242Raw(null);
     };
   }, [selectedHDD]);
-
-  if (!hardDiskData) {
-    // initialize hard disk data
-    Papa.parse("/data/hdd-list-2022.csv", {
-      download: true,
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      complete: (res) => setHardDiskData(res.data),
-    });
-  }
 
   return (
     <Container fluid="xxl" className="p-4">
@@ -93,11 +166,45 @@ export default function App() {
       <Row className="mt-2">
         <Col sm={12} md={6} lg={7}>
           <Row>
-            <SpecInputForm onSubmit={(e) => console.log(e)} />
+            <SpecInputForm
+              onSubmit={(values) => {
+                const { price, capacity, rpm } = values;
+                const recommendations = getRecommendations(
+                  hardDiskData,
+                  price,
+                  capacity,
+                  rpm
+                );
+                console.log("recommendations", recommendations);
+                setTableData(recommendations);
+                setRecommendationMessage(
+                  `가격 ${price.toLocaleString()}원, 용량 ${capacity}TB, 속도 ${rpm}RPM에 대해 실사용 데이터 기반으로 추천된 하드디스크 목록입니다.`
+                );
+              }}
+            />
           </Row>
-          <Row className="mt-3 overflow-scroll">
+          {recommendationMessage && (
+            <Row className="mt-4">
+              <Alert variant="success" className="p-4">
+                {recommendationMessage}
+                <div className="mt-2 text-end">
+                  <Button
+                    variant="success"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setTableData(hardDiskData);
+                      setRecommendationMessage(null);
+                    }}
+                  >
+                    이전으로
+                  </Button>
+                </div>
+              </Alert>
+            </Row>
+          )}
+          <Row className="mt-4 overflow-scroll">
             <ReliabilityTable
-              data={hardDiskData}
+              data={tableData}
               selectedModel={selectedHDD?.model}
               onRowClick={(e) => {
                 setSelectedHDD(e);
