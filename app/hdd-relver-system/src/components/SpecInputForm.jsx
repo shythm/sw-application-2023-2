@@ -94,17 +94,7 @@ const SpecInputForm = (props) => {
                 handleSubmit();
               }}
             >
-              비슷한 HDD 검색
-            </Button>{" "}
-            <Button
-              variant="outline-secondary"
-              onClick={() => {
-                setPrice("");
-                setCapacity("");
-                setRpm("");
-              }}
-            >
-              재설정
+              HDD 추천 받기
             </Button>
           </div>
         </Form>
